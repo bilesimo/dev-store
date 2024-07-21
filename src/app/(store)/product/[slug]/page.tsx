@@ -1,4 +1,7 @@
+import { AddToCartButton } from '@/components/add-to-cart-button'
 import { api } from '@/data/api'
+import { Product } from '@/data/types/products'
+import { Metadata } from 'next'
 import Image from 'next/image'
 
 interface ProductParams {
@@ -10,11 +13,29 @@ interface ProductParams {
 async function getProduct(slug: string) {
   const response = await api(`/products/${slug}`, {
     next: {
-      revalidate: 60 * 60,
+      revalidate: 60 * 60, // 1h
     },
   })
   const product = await response.json()
   return product
+}
+
+export async function generateMetadata({
+  params,
+}: ProductParams): Promise<Metadata> {
+  const product = await getProduct(params.slug)
+  return {
+    title: product.title,
+  }
+}
+
+export async function generateStaticParams() {
+  // vão ser carregados em tempo de build
+  const response = await api('/products/featured', {})
+  const products: Product[] = await response.json()
+  return products.map((product) => {
+    return { slug: product.slug }
+  })
 }
 
 export default async function ProductPage({ params }: ProductParams) {
@@ -47,7 +68,7 @@ export default async function ProductPage({ params }: ProductParams) {
             })}
           </span>
           <span className="text-sm text-zinc-400">
-            Em 12x / juros de{' '}
+            Em 12x s/ juros de{' '}
             {(product.price / 12).toLocaleString('pt-BR', {
               style: 'currency',
               currency: 'BRL',
@@ -86,12 +107,7 @@ export default async function ProductPage({ params }: ProductParams) {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="mt-8 flex h-12 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white"
-        >
-          Adicionar ao carrinho
-        </button>
+        <AddToCartButton productId={product.id} />
       </div>
     </div>
   )
