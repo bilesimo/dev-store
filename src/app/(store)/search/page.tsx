@@ -32,10 +32,6 @@ export default async function SearchPage({ searchParams }: SearchProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p>
-        Resultados para: <span className="font-semibold">{query}</span>
-      </p>
-
       <div className="grid grid-cols-3 gap-6">
         {products.map((product) => (
           <Link
