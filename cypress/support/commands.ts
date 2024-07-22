@@ -1,10 +1,12 @@
 /// <reference types="cypress" />
 
-declare namespace Cypress {
+declare global {
+  namespace Cypress {
     interface Chainable {
-      searchByQuery(query: string): Chainable<void>
+      searchByQuery: (query: string) => void
     }
   }
+}
 
 Cypress.Commands.add('searchByQuery', (query: string) => {
   cy.visit('/')
